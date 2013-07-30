@@ -7,27 +7,21 @@ end
 Tire.index 'filtered_test' do
   delete
   create
-  store tags: ['ruby'], content: 'ruby is awesome'
-  store tags: ['java'], content: 'java is awesome'
-  store tags: ['perl'], content: 'perl is awesome'
+  store user_id: 1, colleague: 'jey',   content: "funny"
+  store user_id: 1, colleague: 'ellis', content: "funny"
+  store user_id: 2, colleague: 'mohan', content: "funny"
 
   refresh
 end
 
 s = Tire.search 'filtered_test' do
-  filter :terms, :tags => ['ruby']
-  query { string 'awesome' }
-end
-
-s = Tire.search 'filtered_test' do
   query do
     filtered do
-      query { string 'awesome' }
-      filter :terms, :tags => ['ruby']
+      filter :term, user_id: 1
+      query { string 'funny' }
     end
   end
 end
 
-p s.results.to_a.map(&:content)
+p s.results.to_a.map(&:user_id)
 
-#https://gist.github.com/brupm/95653d2351c8e42e3abd
