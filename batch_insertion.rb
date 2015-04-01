@@ -3,7 +3,6 @@ require 'benchmark'
 
 Tire.configure { logger STDERR }
 
-
 documents = (1..2000).map { |i| { id: i, location: 'United States', title: "Document #{i}", color: 'red' } }
 
 Tire.index 'benchmark' do

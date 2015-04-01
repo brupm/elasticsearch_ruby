@@ -2,37 +2,30 @@ require 'tire'
 
 Tire.configure { logger STDERR }
 
-Tire.index 'random-sort' do
+klass = Tire.index 'search' do
   delete
-  create mappings: {
-    document: {
-      properties: {
-        random_sort: { type: 'float' },
-        location: { type: 'string' },
-        title: { type: 'string', index: :not_analyzed }
-      }
-    }
-  }
 
-
-  store title: 'xabc abc abc', location: 'US'
-  store title: 'def', location: 'US'
-  store title: 'dex', location: 'BR'
-  store title: 'a', location: 'BR'
-  store title: 'k', location: 'BR'
+  store first: 'Kimberly', last: "Smith", middle: "middle"
+  store first: 'Barbara', last: "Venezuela", middle: "middle"
+  store first: 'John', last: "Maria", middle: "middle"
+  store first: 'Nancy', last: "Smith", middle: "middle"
 
   refresh
 end
 
-s = Tire.search 'random-sort' do
-  query do
-    #string 'a'
-    match :title, 'abc abc'
+
+s = Tire.search 'search' do
+  query { all }
+
+  my_sort = {
+    "kol_tags.scored.score" => { "order" => "desc", "mode" => "sum", "nested_filter" => { "term" => { "kol_tags.scored.name" => "Research" } } }
+  }
+
+  sort do
+    by my_sort
   end
-  #filter(:term, location: 'br')
-  #fields :title, :location
-  #script_field :random_sort, script: "Math.random()"
-  #sort { by :title, "asc" }
+
 end
 
-p s.results.to_a
+p s.results.to_a.collect { |x| "#{x.first} #{x.last}" }
+
